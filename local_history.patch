@@ -1,0 +1,110 @@
+Index: Process.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Process.h b/Process.h
+--- a/Process.h	
++++ b/Process.h	(date 1711005688169)
+@@ -16,82 +16,69 @@
+ 
+ class Process {
+ private:
+-    std::string name_;
++    std::string name;
+ 
+ public:
+     Process();
+ 
+     explicit Process(const std::string name);
+ 
+-    Process &subscribeEvent(const std::string &eventType, const EventHandler &handler);
++    void subscribeEvent(const std::string &eventType, const EventHandler &handler);
+ 
+-    Process &publishEvent(const std::string &eventType, std::shared_ptr<Event> event);
+-
+-    template<typename T>
+-    std::shared_ptr<Channel<T>> createChannel(const std::string &channelName);
++    void publishEvent(const std::string &eventType, std::shared_ptr<Event> event);
+ 
+     template<typename T>
+-    std::shared_ptr<Channel<T>> getOrCreateChannel(const std::string &channelName);
++    void createChannel(const std::string &channelName);
+ 
+     template<typename T>
+-    Process &subscribeChannel(const std::string &channelName, const ChannelHandler<T> &handler);
++    void subscribeChannel(const std::string &channelName, const ChannelHandler<T> &handler);
+ 
+     template<typename T>
+-    Process &sendtoChannel(const std::string &channelName, const T &data);
++    void sendtoChannel(const std::string &channelName, const T &data);
+ };
+ 
+ // Process类的默认构造函数
+-inline Process::Process() : name_("Unnamed") {}
++inline Process::Process() : name("Unnamed") {}
+ 
+ // Process类的带参数构造函数
+-inline Process::Process(const std::string name) : name_(name) {}
++inline Process::Process(const std::string name) : name(name) {}
+ 
+-Process &Process::subscribeEvent(const std::string &eventType, const EventHandler &handler) {
++void Process::subscribeEvent(const std::string &eventType, const EventHandler &handler) {
+     Manager &manager = Manager::getInstance();
+     manager.subscribeEvent(eventType, handler);
+-    return *this;
+ }
+ 
+-Process &Process::publishEvent(const std::string &eventType, std::shared_ptr<Event> event) {
++void Process::publishEvent(const std::string &eventType, std::shared_ptr<Event> event) {
+     Manager &manager = Manager::getInstance();
+     manager.publishEvent(eventType, event);
+-    return *this;
+ }
+ 
+ template<typename T>
+-std::shared_ptr<Channel<T>> Process::createChannel(const std::string &channelName) {
++void Process::createChannel(const std::string &channelName) {
+     Manager &manager = Manager::getInstance();
+-    return manager.createChannel<T>(channelName);
+-}
+-
+-template<typename T>
+-std::shared_ptr<Channel<T>> getOrCreateChannel(const std::string &channelName) {
+-    Manager &manager = Manager::getInstance();
+-    return manager.getOrCreateChannel<T>(channelName);
++    manager.createChannel<T>(channelName);
+ }
+ 
+ // 订阅channel
+ // 通过std::thread创建一个新线程，用于处理接收到的数据
+ // 通过detach()方法使线程在后台运行
+ template<typename T>
+-Process &Process::subscribeChannel(const std::string &channelName, const ChannelHandler<T> &handler) {
++void Process::subscribeChannel(const std::string &channelName, const ChannelHandler<T> &handler) {
+     Manager &manager = Manager::getInstance();
+-    std::shared_ptr<Channel<T>> channel = manager.getOrCreateChannel<T>(channelName);
+-    std::thread([this, channel, handler]() {
++    Channel<T> &channel = manager.getOrCreateChannel<T>(channelName);
++    std::thread([this, &channel, handler]() {
+         while (true) {
+-            T data = channel->receive();
++            T data = channel.receive();
+             handler(data);
+         }
+     }).detach();
+-    return *this;
+ }
+ 
+ template<typename T>
+-Process &Process::sendtoChannel(const std::string &channelName, const T &data) {
++void Process::sendtoChannel(const std::string &channelName, const T &data) {
+     Manager &manager = Manager::getInstance();
+-    std::shared_ptr<Channel<T>> channel = manager.getOrCreateChannel<T>(channelName);
+-    channel->send(data);
+-    return *this;
++    Channel<T> &channel = manager.getOrCreateChannel<T>(channelName);
++    channel.send(data);
+ }
+ 
+ #endif // PROCESS_H

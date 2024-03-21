@@ -1,0 +1,5 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja -G Ninja -S /Users/sky/CLionProjects/eventLoopManager -B /Users/sky/CLionProjects/eventLoopManager/cmake-build-debug
+-- RapidJSON found. Headers: /opt/homebrew/Cellar/rapidjson/1.1.0/include
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/sky/CLionProjects/eventLoopManager/cmake-build-debug
