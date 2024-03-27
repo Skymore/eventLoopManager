@@ -76,7 +76,7 @@ void KafkaProducer::produce(const std::string& message) {
     if (resp != RdKafka::ERR_NO_ERROR) {
         std::cerr << "Produce failed: " << RdKafka::err2str(resp) << std::endl;
     } else {
-        std::cout << "Message produced: " << message << std::endl;
+        // std::cout << "Message produced: " << message << std::endl;
     }
 
     // librdkafka 基于异步的，调用 poll 来触发回调（如消息发送成功或失败的回调）
