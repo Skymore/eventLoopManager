@@ -1,3 +1,0 @@
-/Users/sky/CLionProjects/eventLoopManager/cmake-build-debug/CMakeFiles/eventLoopManager.dir
-/Users/sky/CLionProjects/eventLoopManager/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/sky/CLionProjects/eventLoopManager/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -24,7 +24,7 @@ public:
 
     explicit Process(const std::string name);
 
-    static void subscribeEvent(const std::string &eventType, const EventHandler &handler);
+    void subscribeEvent(const std::string &eventType, const EventHandler &handler);
 
     void publishEvent(const std::string &eventType, std::shared_ptr<Event> event);
 

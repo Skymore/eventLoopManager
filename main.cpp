@@ -221,7 +221,7 @@ int main() {
     std::cout << "Message sent." << std::endl;
 
     // KafkaProducer的析构函数会被自动调用，清理资源
-    /*
+    */
 
     return 0;
 }
