@@ -9,6 +9,7 @@ public:
     virtual float readTemperature() = 0;
     virtual float readHumidity() = 0;
     virtual float readCO2Concentration() = 0;
+    ~SensorReader() = default;
 };
 
 class SimulatedSensorReader : public SensorReader {
