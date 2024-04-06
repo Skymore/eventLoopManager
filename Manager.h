@@ -8,7 +8,11 @@
 #include <mutex>
 #include <functional>
 #include <memory>
+#include <queue>
+#include <chrono>
 #include "Channel.h"
+
+using namespace std::chrono;
 
 class Process;
 
@@ -18,14 +22,18 @@ using EventHandler = std::function<void(std::shared_ptr<Event>)>;
 
 class Manager {
 private:
-    Manager() : running(true) {}
+    Manager() = default;
 
     std::map<std::string, std::shared_ptr<void>> channels;
     std::map<std::string, std::shared_ptr<Process>> processes;
     std::map<std::string, std::vector<EventHandler>> eventListeners;
-    bool running;
+    // 任务队列 taskQueue
+    std::queue<std::pair<std::shared_ptr<Event>, EventHandler>> taskQueue;
+
     std::mutex eventMutex;
     std::mutex channelMutex;
+    high_resolution_clock::time_point _start_time;
+    high_resolution_clock::duration _elapsed;
 
 public:
     Manager(const Manager &) = delete;
@@ -44,9 +52,8 @@ public:
     template<typename T>
     void createChannel(const std::string &channelName);
 
-    void run();
+    void run(high_resolution_clock::duration runtime);
 
-    void stop();
 };
 
 
@@ -64,7 +71,10 @@ void Manager::publishEvent(const std::string &eventType, std::shared_ptr<Event> 
     std::lock_guard<std::mutex> lock(eventMutex);
     if (eventListeners.find(eventType) != eventListeners.end()) {
         for (auto &handler: eventListeners[eventType]) {
-            handler(event);
+            // handler(event);
+            // 改为事件循环
+            taskQueue.emplace(event, handler);
+            std::cout << "Task added to queue" << std::endl;
         }
     }
 }
@@ -89,14 +99,27 @@ void Manager::createChannel(const std::string &channelName) {
     channels[channelName] = channel;
 }
 
-void Manager::run() {
-    while (running) {
-        std::this_thread::sleep_for(std::chrono::seconds(20));
-    }
-}
+// 事件循环
+void Manager::run(high_resolution_clock::duration runtime) {
+    _start_time = high_resolution_clock::now();
+    _elapsed = high_resolution_clock::duration::zero();
 
-void Manager::stop() {
-    running = false;
+    while ( _elapsed < runtime ) {
+        if (taskQueue.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            continue;
+        }
+
+        auto [event, handler] = taskQueue.front();
+        std::cout << "Processing task" << std::endl;
+        handler(event);
+        std::cout << "Task processed" << std::endl;
+        taskQueue.pop();
+
+        high_resolution_clock::time_point now = high_resolution_clock::now();
+        _elapsed = now - _start_time;
+    }
+
 }
 
 #endif // MANAGER_H

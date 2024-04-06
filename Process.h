@@ -6,7 +6,6 @@
 #include <memory>
 #include "Event.h"
 #include "Channel.h"
-#include "kafkaProducer.h"
 
 class Manager;
 
@@ -24,7 +23,7 @@ public:
 
     explicit Process(const std::string name);
 
-    void subscribeEvent(const std::string &eventType, const EventHandler &handler);
+    static void subscribeEvent(const std::string &eventType, const EventHandler &handler);
 
     void publishEvent(const std::string &eventType, std::shared_ptr<Event> event);
 
