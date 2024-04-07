@@ -15,6 +15,11 @@
 class Producer {
 public:
     Producer(const std::string &name, double latitude, double longitude);
+    Producer(const Producer &producer) = default;
+    Producer(Producer &&producer) = default;
+    Producer &operator=(const Producer &producer) = default;
+    Producer &operator=(Producer &&producer) = default;
+    ~Producer();
 
     void produceData() {
         Process process(producerName);
@@ -47,7 +52,7 @@ public:
             std::string jsonData = buffer.GetString();
 
             // 输出JSON数据到控制台（示例用途）
-            // std::cout << producerName << " sends data: " << jsonData << std::endl;
+            std::cout << producerName << " sends data: " << jsonData << std::endl;
 
             // 发送数据到"DataChannel"通道
             process.sendtoChannel("DataChannel", jsonData);
@@ -67,7 +72,7 @@ private:
     static int generateRandomTime() {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(100, 500);
+        std::uniform_int_distribution<> dis(500, 1000);
         return dis(gen);
     }
 };
@@ -77,6 +82,10 @@ Producer::Producer(const std::string &name, double latitude, double longitude) {
     this->latitude = latitude;
     this->longitude = longitude;
     reader = std::make_unique<SimulatedSensorReader>();
+}
+
+Producer::~Producer() {
+    std::cout << "Producer" << producerName <<" is destroyed." << std::endl;
 }
 
 #endif //PRODUCER_H

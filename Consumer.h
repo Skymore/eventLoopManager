@@ -38,10 +38,12 @@ public:
                 这两行代码使用了条件变量来暂停线程的执行，直到 ready 变为 true 或者 finished 变为 true。这是为了控制何时处理接收到的数据：只有在准备好接收时（ready 为 true）或者准备结束（finished 为 true），线程才会继续执行。
             处理接收到的数据： 如果 finished 标志被设置为 true，则函数立即返回，不再处理数据。这是一种清理或结束操作的标志。如果没有结束，则输出接收到的数据，并可能进行进一步的处理，如 JSON 解析。
          */
+        std::cout << "thead: " << std::this_thread::get_id() << " " << name_ << " is consuming data." << std::endl;
         process.subscribeChannel<std::string>("DataChannel", [this](const std::string &data) {
             std::unique_lock<std::mutex> lock(this->mtx);
             this->cv.wait(lock, [this] { return this->ready; });
-
+            // data 输出两位小数
+            std::cout << "Thread ID: " << std::this_thread::get_id() << " " << this->name_ << " receives data" << std::endl;
 
             // 输出接收到的数据(示例用途)
             // std::cout << this->name_ << " receives data: " << data << std::endl;
@@ -84,7 +86,7 @@ public:
                 std::cout << this->name_ << " receives status change event: " << currentStatus << std::endl;
             }
         });
-
+        std::cout << "thead: " << std::this_thread::get_id() << " " << name_ <<  " consumes data finished." << std::endl;
     }
 
     ~Consumer() {
