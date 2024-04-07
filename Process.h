@@ -51,25 +51,18 @@ void Process::publishEvent(const std::string &eventType, std::shared_ptr<Event> 
 }
 
 // 订阅channel
-// 通过std::thread创建一个新线程，用于处理接收到的数据
-// 通过detach()方法使线程在后台运行
+// 通过Manager类的getOrCreateChannel方法获取或创建Channel对象，然后创建一个任务，该任务从Channel对象中接收数据并调用handler函数处理数据
 template<typename T>
-void Process::subscribeChannel(const std::string &channelName, const ChannelHandler<T> &handler) {
-    Manager &manager = Manager::getInstance();
-    Channel<T> &channel = manager.getOrCreateChannel<T>(channelName);
-    std::thread([this, &channel, handler]() {
-        while (true) {
-            T data = channel.receive();
-            handler(data);
-        }
-    }).detach();
+void Process::subscribeChannel(const std::string &channelName, const ChannelHandler<T>& handler) {
+    Manager& manager = Manager::getInstance();
+    manager.subscribeChannel(channelName, handler);
 }
+
 
 template<typename T>
 void Process::sendtoChannel(const std::string &channelName, const T &data) {
     Manager &manager = Manager::getInstance();
-    Channel<T> &channel = manager.getOrCreateChannel<T>(channelName);
-    channel.send(data);
+    manager.publishToChannel(channelName, data);
 }
 
 #endif // PROCESS_H

@@ -43,6 +43,7 @@ int main() {
     // 状态改变者和消费者对象
     StatusChanger statusChanger;
     Consumer consumer("Consumer", kafkaConfigPath, topic);
+    //Consumer consumer2("Consumer2", kafkaConfigPath, topic);
 
     // 加载配置文件
     auto configs = ProducerConfig::loadFromJson(sensorsConfigPath);
@@ -60,9 +61,17 @@ int main() {
         producerThreads.emplace_back(&Producer::produceData, &producer);
     }
 
+    std::cout << "Main thread: " << std::this_thread::get_id() << " is running." << std::endl;
+
     // 创建和启动状态改变者和消费者线程
     std::thread statusChangerThread(&StatusChanger::changeStatus, &statusChanger);
     std::thread consumerThread(&Consumer::consumeData, &consumer);
+    //std::thread consumerThread2(&Consumer::consumeData, &consumer2);
+
+    // 运行 20 秒
+    manager.run(std::chrono::seconds(10));
+
+    std::cout << "Main thread: " << std::this_thread::get_id() << " manager stopped." << std::endl;
 
     // 等待生产者、状态改变者和消费者线程结束
     for (auto &t: producerThreads) {
@@ -71,9 +80,7 @@ int main() {
     statusChangerThread.join();
     consumerThread.join();
 
-    // 运行 20 秒
-    manager.run(std::chrono::seconds(20));
-
+    std::cout << "Main thread: " << std::this_thread::get_id() << " all threads joined." << std::endl;
 
 
     /*
